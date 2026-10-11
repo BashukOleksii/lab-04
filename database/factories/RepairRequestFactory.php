@@ -37,7 +37,7 @@ class RepairRequestFactory extends Factory
             'reported_at' => fake()->dateTimeBetween('-90 days','now'),
             'cost' => null,
             'urgent' => fake()->boolean(25),
-            'completed_at' => true,
+            'completed_at' => null,
         ];
     }
 
@@ -59,7 +59,7 @@ class RepairRequestFactory extends Factory
         ]);
     }
 
-    public function closes(): static{
+    public function closed(): static{
         return $this->state(
             function (array $attributes){
 
