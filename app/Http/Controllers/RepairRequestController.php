@@ -5,66 +5,45 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReadRepairRequestRequest;
 use App\Http\Requests\StoreRepairRequestRequest;
 use App\Http\Requests\UpdateRepairRequestRequest;
-use App\Models\Department;
 use App\Models\RepairRequest;
+use App\Services\DepartmentService;
+use App\Services\RepairCommentService;
 use App\Services\RepairDefectFileService;
 use App\Services\RepairRequestQueryService;
+use App\Services\RepairRequestService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Throwable;
 
 class RepairRequestController extends Controller
 {
     public function index(
         ReadRepairRequestRequest $request,
-        RepairRequestQueryService $queryService
+        RepairRequestQueryService $queryService,
+        DepartmentService $departmentService
     ): View {
         $filters = $request->validated();
         $repairs = $queryService->paginate($filters);
-        $departments = $this->departments();
+        $departments = $departmentService->options();
 
         return view('repair-requests.index', compact('repairs', 'departments', 'filters'));
     }
 
-    public function create(): View
+    public function create(DepartmentService $departmentsService): View
     {
-        $departments = $this->departments();
+        $departments = $departmentsService->options();
 
         return view('repair-requests.create', compact('departments'));
     }
 
     public function store(
         StoreRepairRequestRequest $request,
-        RepairDefectFileService $files
+        RepairRequestService $service
     ): RedirectResponse {
-        $data = $request->safe()->except(['initial_comment', 'defect_file']);
-        $initialComment = trim((string) $request->validated('initial_comment', ''));
-        $newPath = null;
-
-        if ($request->hasFile('defect_file')) {
-            $newPath = $files->store($request->file('defect_file'));
-            $data['defect_path'] = $newPath;
-        }
-
-        try {
-            $repairRequest = DB::transaction(function () use ($data, $initialComment) {
-                $repairRequest = RepairRequest::create($data);
-
-                if ($initialComment !== '') {
-                    $repairRequest->repairComments()->create([
-                        'body' => $initialComment,
-                    ]);
-                }
-
-                return $repairRequest;
-            });
-        } catch (Throwable $exception) {
-            $this->cleanupAfterFailure($files, $newPath);
-            throw $exception;
-        }
+        $repairRequest = $service->create(
+            $request->safe()->except(['defect_file']),
+            $request->file('defect_file')
+        );
 
         return redirect()
             ->route('repair-requests.show', $repairRequest)
@@ -73,60 +52,37 @@ class RepairRequestController extends Controller
 
     public function show(
         RepairRequest $repairRequest,
+        RepairCommentService $commentsService,
         RepairDefectFileService $files
     ): View {
-        $repairRequest->load('department');
-        $comments = $this->comments($repairRequest);
-        $fileUrl = $files->url($repairRequest->defect_path);
-        $fileIsPdf = $files->isPdf($repairRequest->defect_path);
-
-        return view('repair-requests.show', compact(
-            'repairRequest', 'comments', 'fileUrl', 'fileIsPdf'
-        ));
+        return view(
+            'repair-requests.show',
+            $this->detailsData($repairRequest, $commentsService, $files)
+        );
     }
 
     public function edit(
         RepairRequest $repairRequest,
-        RepairDefectFileService $files
+        RepairCommentService $commentsService,
+        RepairDefectFileService $files,
+        DepartmentService $departmentsService
     ): View {
-        $repairRequest->load('department');
-        $departments = $this->departments();
-        $comments = $this->comments($repairRequest);
-        $fileUrl = $files->url($repairRequest->defect_path);
-        $fileIsPdf = $files->isPdf($repairRequest->defect_path);
-
-        return view('repair-requests.edit', compact(
-            'repairRequest', 'departments', 'comments', 'fileUrl', 'fileIsPdf'
-        ));
+        return view('repair-requests.edit', [
+            ...$this->detailsData($repairRequest, $commentsService, $files),
+            'departments' => $departmentsService->options(),
+        ]);
     }
 
     public function update(
         UpdateRepairRequestRequest $request,
         RepairRequest $repairRequest,
-        RepairDefectFileService $files
+        RepairRequestService $service
     ): RedirectResponse {
-        $data = $request->safe()->except(['defect_file']);
-        $oldPath = $repairRequest->defect_path;
-        $newPath = null;
-
-        if ($request->hasFile('defect_file')) {
-            $newPath = $files->store($request->file('defect_file'));
-            $data['defect_path'] = $newPath;
-        }
-
-        try {
-            DB::transaction(function () use ($repairRequest, $data) {
-                $repairRequest->update($data);
-            });
-        } catch (Throwable $exception) {
-            $this->cleanupAfterFailure($files, $newPath);
-
-            throw $exception;
-        }
-
-        if ($newPath !== null) {
-            $files->delete($oldPath);
-        }
+        $service->update(
+            $repairRequest,
+            $request->safe()->except(['defect_file']),
+            $request->file('defect_file')
+        );
 
         return redirect()
             ->route('repair-requests.show', $repairRequest)
@@ -135,12 +91,9 @@ class RepairRequestController extends Controller
 
     public function destroy(
         RepairRequest $repairRequest,
-        RepairDefectFileService $files
+        RepairRequestService $service
     ): RedirectResponse {
-        $oldPath = $repairRequest->defect_path;
-
-        DB::transaction(fn () => $repairRequest->delete());
-        $files->delete($oldPath);
+        $service->delete($repairRequest);
 
         return redirect()
             ->route('repair-requests.index')
@@ -156,33 +109,18 @@ class RepairRequestController extends Controller
         return $files->download($repairRequest->defect_path);
     }
 
-    // Можна додати в LocalScope в Department пізніше
-    private function departments()
-    {
-        return Department::query()
-            ->select(['id', 'name'])
-            ->orderBy('name')
-            ->get();
-    }
+    private function detailsData(
+        RepairRequest $repairRequest,
+        RepairCommentService $commentsService,
+        RepairDefectFileService $files
+    ): array {
+        $repairRequest->load('department');
 
-    // Можна додати в LocalScope в Coments пізніше
-    private function comments(RepairRequest $repairRequest): LengthAwarePaginator
-    {
-        return $repairRequest->repairComments()
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->paginate(10, ['*'], 'comments_page');
-    }
-
-    private function cleanupAfterFailure(
-        RepairDefectFileService $files,
-        ?string $newPath
-    ): void {
-        try {
-            $files->delete($newPath);
-        } catch (Throwable $cleanupError) {
-            // Не підміняємо вихідний виняток помилкою прибирання.
-            report($cleanupError);
-        }
+        return [
+            'repairRequest' => $repairRequest,
+            'comments' => $commentsService->paginateFor($repairRequest),
+            'fileUrl' => $files->url($repairRequest->defect_path),
+            'fileIsPdf' => $files->isPdf($repairRequest->defect_path),
+        ];
     }
 }

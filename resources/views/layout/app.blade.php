@@ -7,7 +7,7 @@
     <title>@yield('title', 'Заявки на ремонт') — RepairDesk</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('app.css') }}">
     @yield('styles')
 </head>
 <body class="d-flex flex-column">
@@ -65,10 +65,6 @@
     @yield('content')
 </main>
 
-<footer class="container pb-4 pt-2 small d-flex justify-content-between flex-wrap gap-2">
-    <span>RepairDesk · Лабораторна робота №4</span>
-    <span>Laravel · Eloquent · Bootstrap</span>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @yield('scripts')

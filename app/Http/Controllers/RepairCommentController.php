@@ -6,54 +6,39 @@ use App\Http\Requests\StoreRepairCommentRequest;
 use App\Http\Requests\UpdateRepairCommentRequest;
 use App\Models\RepairComment;
 use App\Models\RepairRequest;
+use App\Services\RepairCommentService;
 use Illuminate\Http\RedirectResponse;
 
 class RepairCommentController extends Controller
 {
     public function store(
         StoreRepairCommentRequest $request,
-        RepairRequest $repairRequest
+        RepairRequest $repairRequest,
+        RepairCommentService $service
     ): RedirectResponse {
+        $service->create($repairRequest, $request->validated());
 
-        $repairRequest->repairComments()
-            ->create($request->validated());
-
-        return back()->with(
-            'success',
-            'Коментар успішно додано.'
-        );
+        return back()->with('success', 'Коментар успішно додано.');
     }
 
     public function update(
         UpdateRepairCommentRequest $request,
         RepairRequest $repairRequest,
-        RepairComment $repairComment
+        RepairComment $repairComment,
+        RepairCommentService $service
     ): RedirectResponse {
+        $service->update($repairRequest, $repairComment, $request->validated());
 
-        $comment = $repairRequest->repairComments()
-            ->findOrFail($repairComment->getKey());
-
-        $comment->update($request->validated());
-
-        return back()->with(
-            'success',
-            'Коментар успішно оновлено.'
-        );
+        return back()->with('success', 'Коментар успішно оновлено.');
     }
 
     public function destroy(
         RepairRequest $repairRequest,
-        RepairComment $repairComment
+        RepairComment $repairComment,
+        RepairCommentService $service
     ): RedirectResponse {
+        $service->delete($repairRequest, $repairComment);
 
-        $comment = $repairRequest->repairComments()
-            ->findOrFail($repairComment->getKey());
-
-        $comment->delete();
-
-        return back()->with(
-            'success',
-            'Коментар успішно видалено.'
-        );
+        return back()->with('success', 'Коментар успішно видалено.');
     }
 }

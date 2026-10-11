@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 class RepairRequest extends Model
 {
     use HasFactory;
@@ -50,23 +49,39 @@ class RepairRequest extends Model
     #[Scope]
     protected function filtered(Builder $query, array $filters): void
     {
-        if (!empty($filters['department_id'])) {
+        if (! empty($filters['department_id'])) {
             $query->where('department_id', $filters['department_id']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         $search = trim((string) ($filters['search'] ?? ''));
 
         if ($search !== '') {
-            $query->where(function (Builder $query) use ($search) {
+            $query->where(function (Builder $query) use ($search): void {
                 $query->where('subject', 'like', '%' . $search . '%')
-                    ->orWhereHas('repairComments', function (Builder $query) use ($search) {
+                    ->orWhereHas('repairComments', function (Builder $query) use ($search): void {
                         $query->where('body', 'like', '%' . $search . '%');
                     });
             });
         }
+    }
+
+    #[Scope]
+    protected function sorted(
+        Builder $query,
+        string $sort = 'date',
+        string $direction = 'desc'
+    ): void {
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
+
+        if ($sort === 'priority') {
+            $query->orderBy('priority', $direction);
+        }
+
+        $query->orderBy('reported_at', $direction)
+            ->orderBy('id', $direction);
     }
 }
