@@ -19,7 +19,7 @@ class DepartmentFactory extends Factory
     {
         return [
             'name' => fake()->unique()->company(),
-            'code' => fake()->uniqie()->bothify("DEP-###"),
+            'code' => fake()->unique()->bothify("DEP-###"),
         ];
     }
 }

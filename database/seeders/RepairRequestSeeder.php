@@ -22,7 +22,7 @@ class RepairRequestSeeder extends Seeder
 
             $factory = RepairRequest::factory()->for($department,'department');
 
-            $factory = match($i){
+            $factory = match($i % 3){
                 0 => $factory->closed(),
                 1 => $factory->open(),
                 2 => $factory->inProgress()

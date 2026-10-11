@@ -7,7 +7,7 @@ use App\Models\RepairRequest;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class RepairCommentsSeeder extends Seeder
+class RepairCommentSeeder extends Seeder 
 {
     /**
      * Run the database seeds.
