@@ -60,14 +60,14 @@ class RepairRequest extends Model
             );
         }
 
-        if(!empty($fillable['status'])){
+        if(!empty($filters['status'])){
             $query->where(
                 'status',
                 $filters['status']
             );
         }
 
-        $search = trim((string) $filters['search'] ?? '');
+        $search = trim((string) ($filters['search'] ?? ''));
 
         if ($search != '')
         {

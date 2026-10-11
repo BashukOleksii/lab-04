@@ -13,7 +13,7 @@ class StoreRepairRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -49,7 +49,7 @@ class StoreRepairRequestRequest extends FormRequest
             ],
             'cost'=>[
                 'nullable',
-                'require_if:status,closed',
+                'required_if:status,closed',
                 'numeric',
                 'min:0'
             ],
@@ -59,11 +59,11 @@ class StoreRepairRequestRequest extends FormRequest
             ],
             'completed_at'=>[
                 'nullable',
-                'require_if:status,closed',
+                'required_if:status,closed',
                 'date',
                 'after_or_equal:reported_at'
             ],
-            'innitial_comment' =>[
+            'initial_comment' =>[
                 'nullable',
                 'string',
                 'max:2000'

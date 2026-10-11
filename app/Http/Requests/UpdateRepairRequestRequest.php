@@ -13,7 +13,7 @@ class UpdateRepairRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -49,13 +49,13 @@ class UpdateRepairRequestRequest extends FormRequest
             ],
             'cost'=>[
                 'nullable',
-                'require_if:status,closed',
+                'require_ifd:status,closed',
                 'numeric',
                 'min:0'
             ],
             'completed_at'=>[
                 'nullable',
-                'require_if:status,closed',
+                'required_if:status,closed',
                 'date',
                 'after_or_equal:reported_at'
             ]

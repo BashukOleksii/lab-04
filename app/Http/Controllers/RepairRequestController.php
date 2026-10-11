@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReadRepairRequestRequest;
+use App\Models\Department;
 use App\Models\RepairRequest;
+use App\Services\RepairRequestQueryService;
 use Illuminate\Http\Request;
 
 class RepairRequestController extends Controller
@@ -10,9 +13,23 @@ class RepairRequestController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index
+    (
+        ReadRepairRequestRequest $request,
+        RepairRequestQueryService $queryService    
+    )
     {
-        //
+        $filters = $request->validated();
+
+        $repairs = $queryService->paginate($filters);
+
+        $departaments = Department::query()
+        ->select(['id','name'])
+        ->orderBy('name')
+        ->get();
+
+        return view('repair-requests.index',compact('repairs','departaments','filters'));
+        
     }
 
     /**
