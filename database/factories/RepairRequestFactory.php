@@ -18,7 +18,17 @@ class RepairRequestFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'repair_request_id' => RepairRequest::factory(),
+            'body' => fake()->randomElement([
+                'Отримано повідомлення про несправність.',
+                'Проведено первинну діагностику.',
+                'Очікуємо необхідні комплектуючі.',
+                'Проблему передано спеціалісту.',
+                'Розпочато ремонт обладнання.',
+                'Перевірено роботу обладнання.',
+                'Необхідна додаткова перевірка.',
+            ])
         ];
     }
 }
+ 
