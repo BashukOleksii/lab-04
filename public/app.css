@@ -1,0 +1,29 @@
+:root {
+    --app-ink: #17273b;
+    --app-accent: #176c70;
+    --app-soft: #f3f6f8;
+    --app-border: #e2e9ed;
+}
+body { background: var(--app-soft); color: var(--app-ink); min-height: 100vh; }
+.app-navbar { background: #14283c; box-shadow: 0 3px 18px rgba(16, 33, 49, .11); }
+.app-navbar .navbar-brand { font-weight: 750; letter-spacing: -.03em; }
+.app-navbar .nav-link { color: #d5e0e8; border-radius: .5rem; padding: .55rem .85rem; }
+.app-navbar .nav-link:hover, .app-navbar .nav-link.active { color: white; background: rgba(255,255,255,.12); }
+.page-eyebrow { font-size: .78rem; color: var(--app-accent); text-transform: uppercase; letter-spacing: .09em; font-weight: 750; }
+.page-title { font-weight: 800; letter-spacing: -.04em; }
+.surface-card { background: #fff; border: 1px solid var(--app-border); border-radius: 1rem; box-shadow: 0 5px 24px rgba(16,35,50,.035); }
+.request-card { transition: transform .18s ease, box-shadow .18s ease; }
+.request-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(16,35,50,.09); }
+.request-card .card-title { font-weight: 750; letter-spacing: -.02em; }
+.request-card .stretched-link { color: inherit; text-decoration: none; }
+.btn-brand { background: var(--app-accent); color: #fff; border-color: var(--app-accent); }
+.btn-brand:hover, .btn-brand:focus { background: #115456; border-color: #115456; color: #fff; }
+.muted-label { color: #6b7b89; font-size: .84rem; }
+.value-text { font-weight: 600; overflow-wrap: anywhere; }
+.form-label { font-weight: 650; }
+.form-control:focus, .form-select:focus { border-color: #78b2b3; box-shadow: 0 0 0 .2rem rgba(23,108,112,.13); }
+.file-preview { max-width: 100%; max-height: 460px; object-fit: contain; background: #f5f7fa; border-radius: .7rem; }
+.comment-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.pagination .page-link { color: var(--app-accent); }
+.pagination .active .page-link { background: var(--app-accent); border-color: var(--app-accent); color: white; }
+footer { color: #7a8a96; }
