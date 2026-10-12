@@ -14,7 +14,6 @@ class UpdateDepartmentRequest extends FormRequest
 
     public function rules(): array
     {
-        // Laravel підставляє модель за параметром {department} у маршруті.
         $department = $this->route('department');
 
         return [

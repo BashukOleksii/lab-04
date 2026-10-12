@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Department;
+use App\Models\RepairComment;
 use App\Models\RepairRequest;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -59,21 +60,24 @@ class RepairRequestFactory extends Factory
         ]);
     }
 
-    public function closed(): static{
-        return $this->state(
-            function (array $attributes){
 
+    public function closed(): static
+    {
+        return $this->state(function (array $attributes) {
             $reportedAt = Carbon::parse($attributes['reported_at']);
-
             return [
                 'status' => 'closed',
-                'cost' => fake()->randomFloat(2,0,25000),
-                'completed_at' => fake()->dateTimeBetween(
-                    $reportedAt,
-                    'now'
-                )
+                'cost' => fake()->randomFloat(2, 0, 25000),
+                'completed_at' => fake()->dateTimeBetween($reportedAt, 'now')
             ];
+        })->afterCreating(function (RepairRequest $repairRequest) {
+            RepairComment::factory()->create(
+                [
+                    'repair_request_id'=> $repairRequest->id,
+                    'body' => 'text'
+                ]);
         });
     }
 }
+
  
