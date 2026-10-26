@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RepairRequest extends Model
@@ -14,6 +15,7 @@ class RepairRequest extends Model
     use HasFactory;
 
     protected $fillable = [
+        'owner_id',
         'department_id',
         'subject',
         'priority',
@@ -43,7 +45,20 @@ class RepairRequest extends Model
 
     public function repairComments(): HasMany
     {
-        return $this->hasMany(RepairComment::class);
+        return $this->hasMany(
+            RepairComment::class,
+            'repair_request_id'
+        );
+    }
+
+    public function participatedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'repair_request_user',
+            'repair_request_id',
+            'user_id'
+        );
     }
 
     #[Scope]
