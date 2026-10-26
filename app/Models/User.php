@@ -41,6 +41,14 @@ class User extends Authenticatable
         );
     }
 
+    public function ownedRequests(): HasMany
+    {
+        return $this->hasMany(
+            RepairRequest::class,
+            'owner_id'
+        );
+    }
+
     public function participatedRequests(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -48,6 +56,8 @@ class User extends Authenticatable
             'repair_request_user',
             'user_id',
             'repair_request_id'
-        );
+        )
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }

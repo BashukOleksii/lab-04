@@ -15,7 +15,6 @@ class RepairRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'owner_id',
         'department_id',
         'subject',
         'priority',
@@ -51,6 +50,11 @@ class RepairRequest extends Model
         );
     }
 
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function participatedUsers(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -58,7 +62,9 @@ class RepairRequest extends Model
             'repair_request_user',
             'repair_request_id',
             'user_id'
-        );
+        )
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     #[Scope]
