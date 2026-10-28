@@ -28,7 +28,7 @@ class RepairParticipantController extends Controller
 
             Gate::authorize('manageParticipants', $repair);
 
-            $userId = $data['user_id'];
+            $userId = (int) $data['user_id'];
 
             $alreadyExists = $repair->participatedUsers()
                 ->where('users.id', $userId)
@@ -73,7 +73,7 @@ class RepairParticipantController extends Controller
 
                 $participatedExists = $repair->participatedUsers()
                     ->where('users.id', $user->getKey())
-                    ->exist();
+                    ->exists();
 
                 abort_unless($participatedExists, 404);
 

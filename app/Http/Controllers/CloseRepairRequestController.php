@@ -21,12 +21,12 @@ class CloseRepairRequestController extends Controller
             $repair = RepairRequest::query()
                 ->whereKey($repairRequest->getKey())
                 ->lockForUpdate()
-                ->findOrFail();
+                ->firstOrFail();
 
             Gate::authorize('close', $repair);
 
             $repair->update([
-                'state' => 'closed'
+                'status' => 'closed'
             ]);
         });
 

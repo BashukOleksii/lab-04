@@ -30,6 +30,7 @@ class SaveParticipantRequest extends FormRequest
                 'exists:users,id'
             ],
             'role' => [
+                'required',
                 Rule::in(['viewer', 'editor', 'reviewer'])
             ]
         ];
