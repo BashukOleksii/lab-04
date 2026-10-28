@@ -53,14 +53,6 @@ class RepairRequestPolicy
      */
     public function delete(User $user, RepairRequest $repairRequest): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, RepairRequest $repairRequest): bool
-    {
         return $this->isOwner($user, $repairRequest);
     }
 
@@ -79,9 +71,7 @@ class RepairRequestPolicy
 
     public function downloadPrivate(User $user, RepairRequest $repairRequest): bool
     {
-        return $this->isOwner($user, $repairRequest)
-            || $this->hasRole($user, $repairRequest, 'viewer')
-            || $this->hasRole($user, $repairRequest, 'reviewer');
+        return $this->view($user, $repairRequest);
     }
 
     private function isOwner(User $user, RepairRequest $repair)
