@@ -40,8 +40,12 @@ class RepairRequestPolicy
      */
     public function update(User $user, RepairRequest $repairRequest): bool
     {
-        return $this->isOwner($user, $repairRequest)
-            || $this->hasRole($user, $repairRequest, 'editor');
+        return !$this->isLocked($repairRequest)
+            &&
+            (
+                $this->isOwner($user, $repairRequest)
+                || $this->hasRole($user, $repairRequest, 'editor')
+            );
     }
 
     /**
