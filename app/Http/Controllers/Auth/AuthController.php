@@ -31,7 +31,7 @@ class AuthController extends Controller
             abort(429, 'Забагато спроб входу');
         }
 
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::attempt([...$credentials, 'is_active' => true])) {
             RateLimiter::hit($key, 60);
 
             throw ValidationException::withMessages(['email' => 'Неправильна пошта чи пароль']);

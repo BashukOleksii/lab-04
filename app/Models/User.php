@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Override;
 
+/** @property bool $is_active*/
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;

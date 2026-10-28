@@ -14,7 +14,7 @@ Route::middleware('guest')->group(function () {
         ->name('login.store');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active.account'])->group(function () {
     Route::redirect('/', '/repair-requests');
 
     Route::get(

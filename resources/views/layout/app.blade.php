@@ -35,32 +35,32 @@
                         <a class="btn btn-light btn-sm fw-semibold px-3" href="{{ route('repair-requests.create') }}">+
                             Нова заявка</a>
                     </li>
+
+                    @auth
+                        <li class="nav-item">
+                            <span class="nav-link">
+                                {{ auth()->user()->name }}
+                            </span>
+                        </li>
+
+                        <li class="nav-item">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+
+                                <button type="submit" class="btn btn-outline-light btn-sm">
+                                    Вийти
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a href="{{ route('login') }}" class="btn btn-light btn-sm">
+                                Увійти
+                            </a>
+                        </li>
+                    @endauth
                 </ul>
             </div>
-            @auth
-                <li class="nav-item">
-                    <span class="nav-link">
-                        {{ auth()->user()->name }}
-                    </span>
-                </li>
-
-                <li class="nav-item">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-
-                        <button type="submit" class="btn btn-outline-light btn-sm">
-                            Вийти
-                        </button>
-                    </form>
-                </li>
-            @else
-                <li class="nav-item">
-                    <a href="{{ route('login') }}" class="btn btn-light btn-sm">
-                        Увійти
-                    </a>
-                </li>
-            @endauth
-
         </div>
     </nav>
 
