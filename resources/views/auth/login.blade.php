@@ -37,6 +37,12 @@
                             Увійти
                         </button>
                     </form>
+                    <p class="text-center mt-3 mb-0">
+                        Ще немає акаунта?
+                        <a href="{{ route('register') }}">
+                            Зареєструватися
+                        </a>
+                    </p>
 
                 </div>
             </div>

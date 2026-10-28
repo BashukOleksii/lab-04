@@ -8,6 +8,7 @@ use App\Http\Controllers\RepairParticipantController;
 use App\Http\Controllers\RepairRequestController;
 use App\Http\Controllers\ReviewFileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\RegisterController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'show'])
@@ -15,6 +16,18 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login'])
         ->name('login.store');
+
+    Route::get(
+        '/register',
+        [RegisterController::class, 'show']
+    )->name('register');
+
+    Route::post(
+        '/register',
+        [RegisterController::class, 'store']
+    )
+        ->middleware('throttle:5,1')
+        ->name('register.store');
 });
 
 Route::middleware(['auth', 'active.account'])->group(function () {

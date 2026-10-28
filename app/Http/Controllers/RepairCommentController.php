@@ -11,15 +11,27 @@ use Illuminate\Http\RedirectResponse;
 
 class RepairCommentController extends Controller
 {
+
     public function store(
         StoreRepairCommentRequest $request,
         RepairRequest $repairRequest,
         RepairCommentService $service
     ): RedirectResponse {
-        $service->create($repairRequest, $request->validated());
+        /** @var \App\Models\User $author */
+        $author = $request->user();
 
-        return back()->with('success', 'Коментар успішно додано.');
+        $service->create(
+            $repairRequest,
+            $request->validated(),
+            $author
+        );
+
+        return back()->with(
+            'success',
+            'Коментар успішно додано.'
+        );
     }
+
 
     public function update(
         UpdateRepairCommentRequest $request,

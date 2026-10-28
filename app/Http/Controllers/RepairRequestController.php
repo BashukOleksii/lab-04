@@ -45,12 +45,17 @@ class RepairRequestController extends Controller
         return view('repair-requests.create', compact('departments'));
     }
 
+
     public function store(
         StoreRepairRequestRequest $request,
         RepairRequestService $service
     ): RedirectResponse {
+        /** @var \App\Models\User $owner */
+        $owner = $request->user();
+
         $repairRequest = $service->create(
             $request->safe()->except(['defect_file']),
+            $owner,
             $request->file('defect_file')
         );
 
@@ -58,6 +63,7 @@ class RepairRequestController extends Controller
             ->route('repair-requests.show', $repairRequest)
             ->with('success', 'Заявку успішно створено.');
     }
+
 
     public function show(
         RepairRequest $repairRequest,

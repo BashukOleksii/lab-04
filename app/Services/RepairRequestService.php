@@ -6,42 +6,77 @@ use App\Models\RepairRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use App\Models\User;
 
 class RepairRequestService
 {
     public function __construct(
-        private readonly RepairDefectFileService $files
+        private readonly RepairDefectFileService $files,
+        private readonly RepairCommentService $comments
     ) {}
 
-    public function create(array $data, ?UploadedFile $file = null): RepairRequest
-    {
-        $initialComment = trim((string) ($data['initial_comment'] ?? ''));
 
-        unset($data['initial_comment'], $data['defect_file'], $data['defect_path']);
+    public function create(
+        array $data,
+        User $owner,
+        ?UploadedFile $file = null
+    ): RepairRequest {
+        $initialComment = trim(
+            (string) ($data['initial_comment'] ?? '')
+        );
 
-        $newPath = $file !== null ? $this->files->store($file) : null;
+        unset(
+            $data['initial_comment'],
+            $data['defect_file'],
+            $data['defect_path'],
+            $data['owner_id'],
+            $data['author_id'],
+            $data['review_file_path']
+        );
+
+        if (! in_array(
+            $data['status'] ?? null,
+            ['open', 'in_progress'],
+            true
+        )) {
+            throw new \InvalidArgumentException(
+                'Недопустимий початковий статус заявки.'
+            );
+        }
+
+        $newPath = $file !== null
+            ? $this->files->store($file)
+            : null;
 
         if ($newPath !== null) {
             $data['defect_path'] = $newPath;
         }
 
         try {
-            return DB::transaction(function () use ($data, $initialComment): RepairRequest {
-                $repairRequest = RepairRequest::create($data);
+            return DB::transaction(
+                function () use ($owner, $data, $initialComment): RepairRequest {
+                    $repairRequest = $owner
+                        ->ownedRequests()
+                        ->create($data);
 
-                if ($initialComment !== '') {
-                    $repairRequest->repairComments()->create([
-                        'body' => $initialComment,
-                    ]);
+                    if ($initialComment !== '') {
+                        $this->comments->create(
+                            $repairRequest,
+                            ['body' => $initialComment],
+                            $owner
+                        );
+                    }
+
+                    return $repairRequest;
                 }
-
-                return $repairRequest;
-            });
+            );
         } catch (Throwable $exception) {
             $this->cleanupFailedUpload($newPath);
+
             throw $exception;
         }
     }
+
 
     public function update(
         RepairRequest $repairRequest,

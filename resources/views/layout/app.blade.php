@@ -68,6 +68,11 @@
                                 Увійти
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('register') }}" class="btn btn-outline-light btn-sm">
+                                Реєстрація
+                            </a>
+                        </li>
                     @endauth
                 </ul>
             </div>
