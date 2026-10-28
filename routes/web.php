@@ -20,9 +20,16 @@ Route::middleware(['auth', 'active.account'])->group(function () {
     Route::get(
         'repair-requests/{repairRequest}/download',
         [RepairRequestController::class, 'download']
-    )->name('repair-requests.download');
+    )
+        ->can('downloadPrivate', 'repairRequest')
+        ->name('repair-requests.download');
 
     Route::resource('repair-requests', RepairRequestController::class)
+        ->middlewareFor('index', 'can:viewAny,App\Models\RepairRequest')
+        ->middlewareFor('show', 'can:view,repairRequest')
+        ->middlewareFor(['create', 'store'], 'can:create,App\Models\RepairRequest')
+        ->middlewareFor(['edit', 'update'], 'can:create,repairRequest')
+        ->middlewareFor('delete', 'can:create,repairRequest')
         ->parameters(['repair-requests' => 'repairRequest']);
 
     Route::resource('repair-requests.comments', RepairCommentController::class)
@@ -30,7 +37,11 @@ Route::middleware(['auth', 'active.account'])->group(function () {
         ->parameters([
             'repair-requests' => 'repairRequest',
             'comments' => 'repairComment',
-        ]);
+        ])
+        ->scoped()
+        ->middlewareFor('store', 'can:create,App\Models\RepairComment,repairRequest')
+        ->middlewareFor('update', 'can:update,repairComment')
+        ->middlewareFor('delete', 'can:delete,repairComment');
 
     Route::resource('departments', DepartmentController::class);
 
