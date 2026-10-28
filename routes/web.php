@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CloseRepairRequestController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RepairCommentController;
+use App\Http\Controllers\RepairParticipantController;
 use App\Http\Controllers\RepairRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,8 +30,8 @@ Route::middleware(['auth', 'active.account'])->group(function () {
         ->middlewareFor('index', 'can:viewAny,App\Models\RepairRequest')
         ->middlewareFor('show', 'can:view,repairRequest')
         ->middlewareFor(['create', 'store'], 'can:create,App\Models\RepairRequest')
-        ->middlewareFor(['edit', 'update'], 'can:create,repairRequest')
-        ->middlewareFor('delete', 'can:create,repairRequest')
+        ->middlewareFor(['edit', 'update'], 'can:update,repairRequest')
+        ->middlewareFor('destroy', 'can:delete,repairRequest')
         ->parameters(['repair-requests' => 'repairRequest']);
 
     Route::resource('repair-requests.comments', RepairCommentController::class)
@@ -41,10 +43,31 @@ Route::middleware(['auth', 'active.account'])->group(function () {
         ->scoped()
         ->middlewareFor('store', 'can:create,App\Models\RepairComment,repairRequest')
         ->middlewareFor('update', 'can:update,repairComment')
-        ->middlewareFor('delete', 'can:delete,repairComment');
+        ->middlewareFor('destroy', 'can:delete,repairComment');
 
     Route::resource('departments', DepartmentController::class);
 
     Route::post('logout', [AuthController::class, 'logout'])
         ->name('logout');
+
+    Route::post(
+        'repair-requests/{repairRequest/participants}',
+        [RepairParticipantController::class, 'store']
+    )
+        ->can('manageParticipants', 'repairRequest')
+        ->name('repair-requests.participatants.store');
+
+    Route::delete(
+        'repair-requests/{repairRequest/participants/{user}',
+        [RepairParticipantController::class, 'destroy']
+    )
+        ->can('manageParticipants', 'repairRequesr')
+        ->name('repair-requests.participatants.destroy');
+
+    Route::patch(
+        'repair-request/{repairRequest}/close',
+        CloseRepairRequestController::class
+    )
+        ->can('close', 'repairRequest')
+        ->name('repair-requests.close');
 });
