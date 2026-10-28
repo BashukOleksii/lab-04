@@ -32,15 +32,40 @@
                     @endif
                 </div>
             </div>
+
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('repair-requests.edit', $repairRequest) }}" class="btn btn-brand">Редагувати</a>
-                <form method="POST" action="{{ route('repair-requests.destroy', $repairRequest) }}"
-                    onsubmit="return confirm('Видалити заявку разом з усіма коментарями та файлом?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-outline-danger">Видалити</button>
-                </form>
+
+                @can('update', $repairRequest)
+                    <a href="{{ route('repair-requests.edit', $repairRequest) }}" class="btn btn-brand">
+                        Редагувати
+                    </a>
+                @endcan
+
+                @can('delete', $repairRequest)
+                    <form method="POST" action="{{ route('repair-requests.destroy', $repairRequest) }}"
+                        onsubmit="return confirm('Видалити заявку?');">
+                        @csrf
+                        @method('DELETE')
+
+                        <button type="submit" class="btn btn-outline-danger">
+                            Видалити
+                        </button>
+                    </form>
+                @endcan
+
+                @can('close', $repairRequest)
+                    <form method="POST" action="{{ route('repair-requests.close', $repairRequest) }}">
+                        @csrf
+                        @method('PATCH')
+
+                        <button type="submit" class="btn btn-success">
+                            Закрити заявку
+                        </button>
+                    </form>
+                @endcan
+
             </div>
+
         </div>
     </div>
 
@@ -100,5 +125,6 @@
     </div>
 
     @include('repair-requests._review_file')
+    @include('repair-requests._participants')
     @include('repair-requests._comments')
 @endsection

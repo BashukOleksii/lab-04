@@ -23,18 +23,28 @@
             </button>
             <div class="collapse navbar-collapse" id="appNavigation">
                 <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('repair-requests.*') ? 'active' : '' }}"
-                            href="{{ route('repair-requests.index') }}">Заявки на ремонт</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }}"
-                            href="{{ route('departments.index') }}">Департаменти</a>
-                    </li>
-                    <li class="nav-item mt-2 mt-lg-0">
-                        <a class="btn btn-light btn-sm fw-semibold px-3" href="{{ route('repair-requests.create') }}">+
-                            Нова заявка</a>
-                    </li>
+
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('repair-requests.index') }}">
+                                Заявки на ремонт
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('departments.index') }}">
+                                Департаменти
+                            </a>
+                        </li>
+
+                        @can('create', \App\Models\RepairRequest::class)
+                            <li class="nav-item">
+                                <a href="{{ route('repair-requests.create') }}" class="btn btn-light btn-sm">
+                                    + Нова заявка
+                                </a>
+                            </li>
+                        @endcan
+                    @endauth
 
                     @auth
                         <li class="nav-item">

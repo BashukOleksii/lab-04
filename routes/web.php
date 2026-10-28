@@ -56,14 +56,14 @@ Route::middleware(['auth', 'active.account'])->group(function () {
         [RepairParticipantController::class, 'store']
     )
         ->can('manageParticipants', 'repairRequest')
-        ->name('repair-requests.participatants.store');
+        ->name('repair-requests.participants.store');
 
     Route::delete(
         'repair-requests/{repairRequest}/participants/{user}',
         [RepairParticipantController::class, 'destroy']
     )
         ->can('manageParticipants', 'repairRequest')
-        ->name('repair-requests.participatants.destroy');
+        ->name('repair-requests.participants.destroy');
 
     Route::patch(
         'repair-requests/{repairRequest}/close',
