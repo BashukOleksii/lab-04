@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\RepairComment;
 use App\Models\RepairRequest;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,16 +12,12 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class RepairCommentFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-
     public function definition(): array
     {
         return [
             'repair_request_id' => RepairRequest::factory(),
+            'author_id' => User::factory(),
+
             'body' => fake()->randomElement([
                 'Отримано повідомлення про несправність.',
                 'Проведено первинну діагностику.',
@@ -29,7 +26,7 @@ class RepairCommentFactory extends Factory
                 'Розпочато ремонт обладнання.',
                 'Перевірено роботу обладнання.',
                 'Необхідна додаткова перевірка.',
-            ])
+            ]),
         ];
     }
 }
