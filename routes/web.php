@@ -6,6 +6,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\RepairCommentController;
 use App\Http\Controllers\RepairParticipantController;
 use App\Http\Controllers\RepairRequestController;
+use App\Http\Controllers\ReviewFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -23,7 +24,7 @@ Route::middleware(['auth', 'active.account'])->group(function () {
         'repair-requests/{repairRequest}/download',
         [RepairRequestController::class, 'download']
     )
-        ->can('downloadPrivate', 'repairRequest')
+        ->can('view', 'repairRequest')
         ->name('repair-requests.download');
 
     Route::resource('repair-requests', RepairRequestController::class)
@@ -61,13 +62,28 @@ Route::middleware(['auth', 'active.account'])->group(function () {
         'repair-requests/{repairRequest}/participants/{user}',
         [RepairParticipantController::class, 'destroy']
     )
-        ->can('manageParticipants', 'participants')
+        ->can('manageParticipants', 'repairRequest')
         ->name('repair-requests.participatants.destroy');
 
     Route::patch(
-        'repair-request/{repairRequest}/close',
+        'repair-requests/{repairRequest}/close',
         CloseRepairRequestController::class
     )
         ->can('close', 'repairRequest')
         ->name('repair-requests.close');
+
+
+    Route::post(
+        'repair-requests/{repairRequest}/review-file',
+        [ReviewFileController::class, 'store']
+    )
+        ->can('update', 'repairRequest')
+        ->name('repair-requests.review-file.store');
+
+    Route::get(
+        'repair-requests/{repairRequest}/review-file',
+        [ReviewFileController::class, 'download']
+    )
+        ->can('downloadPrivate', 'repairRequest')
+        ->name('repair-requests.review-file.download');
 });
